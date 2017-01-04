@@ -1,0 +1,118 @@
+---
+title: 'TD5: Un tour au casino'
+author: "DUNAND Quentin, GATTAZ Rémi"
+date: "06 Novembre 2015"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: no
+---
+
+---------
+# Simulation
+
+```{r}
+set.seed(42);
+
+trajectory = function(init=10,gain_max=20,p=1/2,t_max=NA) {
+  t=1;
+  current_gain = init
+  traj = c();
+  traj[1] = current_gain;
+  while (current_gain!=0 & (is.na(gain_max) | current_gain<gain_max) & (is.na(t_max) | t<t_max)) {
+    current_gain = current_gain + sample(x=c(-1,+1), size = 1, prob = c(p,1-p));
+    t = t + 1;
+    traj[t] = current_gain;
+  }
+  return(traj);
+}
+```
+
+```{r}
+mytraj = trajectory();
+```
+
+## Graphique
+```{r}
+plot(mytraj);
+```
+
+## Temps de séjour
+```{r}
+duration = function(traj) {
+  length(traj);
+}
+duration(mytraj);
+```
+
+## Etat final
+```{r}
+final_gain = function(traj) {
+  traj[length(traj)];
+}
+final_gain(mytraj);
+```
+
+## Grand nombre de trajectoire
+```{r}
+bankrupt_proba = function(N=1000, ...) {
+  count = 0;
+  for(i in 1:N) {
+     mytraj = trajectory(...);
+     if(final_gain(mytraj)==0) { count = count + 1; }
+  }
+  count/N;
+}
+
+bankrupt_proba();
+```
+
+
+# Étude du cas fini
+
+```{r}
+etudes_gain = function(N=1000, aPMin, aPMax, aNbStep, ...) {
+  wStep = (aPMax - aPMin) / aNbStep;
+  wP = aPMin;
+  
+  wBankruptProba = c(); # Les probabilité de banqueroutes
+  wProbaGain = c(); # Les probabilités
+  wDuration = c(); # Les durées moyennes
+  wGain = c(); # Les gains moyen
+  wI = 1;
+  while(wP < aPMax){
+    count = 0;
+    wGain_tab = c();
+    wDuration_tab = c();
+    for(i in 1:N) {
+       mytraj = trajectory(p=wP);
+       wGain_tab[i] = final_gain(mytraj);
+       wDuration_tab[i] = duration(mytraj);
+       if(wGain_tab[i]==0) { count = count + 1; }
+    }
+    
+    wBankruptProba[wI] = count / N;
+    wProbaGain[wI] = wP;
+    wDuration[wI] = sum(wDuration_tab) / N;
+    wGain[wI] = sum(wGain_tab) / N;
+  
+    
+    wP = wP + wStep;
+    wI = wI + 1;
+  }
+  
+  plot(wProbaGain, wBankruptProba, main="Probabilité de banqueroute en fonction de la probabilité de perte", xlab="Probabilité de perte au jeu", ylab="Probabilité de banqueroute");
+  plot(wProbaGain, main="Durée moyenne d'une partie en fonction de la probabilité de perte", wDuration, xlab="Probabilité de perte au jeu", ylab="Durée moyenne");
+  plot(wProbaGain, main="Gain moyen d'une partie en fonction de la probabilité de perte", wGain, xlab="Probabilité de perte au jeu", ylab="Gains moyen");
+}
+```
+
+```{r}
+etudes_gain(aN = 1000, aPMin = 0, aPMax=1, aNbStep=100)
+```
+
+# Étude du cas infini
+```{r}
+# etudes_gain(aN = 1000, aPMin = 0, aPMax=1, aNbStep=100, gain_max=NA)
+```

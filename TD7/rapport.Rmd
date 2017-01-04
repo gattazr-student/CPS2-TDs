@@ -1,0 +1,56 @@
+---
+title: 'TD7-8: La méthode du rejet'
+author: "DUNAND Quentin, GATTAZ Rémi"
+date: "20-27 Novembre 2015"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: no
+---
+
+---------
+# La méthode du rejet
+```{r}
+generateur = function(min, max, fonctionDensite, majorantDensite) {
+  x = 0;
+  y = 0;
+  while (1){
+    x = runif(1, min=min, max=max);
+    y = runif(1)*majorantDensite;
+    if(y <= fonctionDensite(x)){
+       return(x);
+    }
+  }
+}
+
+generateurN = function(N, min, max, fonctionDensite, majorantDensite) {
+  tirage = 1;
+  res = c();
+  while(tirage < N){
+    res[tirage] = generateur(min, max, fonctionDensite, majorantDensite);
+    tirage = tirage + 1;
+  }
+  res;
+}
+```
+
+
+```{r}
+densiteA = function(x) {
+  2*x;
+}
+
+densiteB = function(x) {
+  pi/2*sin(pi*x);
+}
+
+# ggplot(data.frame(x = c(4 + 3 * x)), aes(x)) + 
+#   geom_histogram(aes(y = ..density..)) + 
+#   stat_function(fun = dnorm, args = list(mean = 4, sd = 3)) + 
+#   theme_bw()
+
+hist(generateurN(10000, 0, 1, densiteA, 2), breaks=100);
+hist(generateurN(10000, 0, 1, densiteB, 2), breaks=100);
+# Oui oui,2 majorent bien (vérification expérimentale)
+```

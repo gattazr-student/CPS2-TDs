@@ -1,0 +1,143 @@
+---
+title: 'TD3: Génération de nombres aléatoires'
+author: "GERRY Quentin, GATTAZ Rémi"
+date: "16 Octobre 2015"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: no
+---
+
+---------
+# Exercice 1 : Générateur à base de congruences
+
+## Question 1
+Le résultat de ce générateur est un nombre modulo 7. Etant donnée que le nombre suivant du générateur est ce nombre multiplié par une constante a, le cycle de ce générateur ne pourra jamais exceder 6. Le 0 ne pouvait mener que à 0 ne peut pas faire partir du cycle.
+
+## Question 2
+```{r}
+suiteGenCongruence = function(a, mod, fin=mod*2){
+  xPrev = 1;
+  xNext = 0;
+  res=c();
+  for(i in 1:fin){
+    xNext = (xPrev * a) %% mod;
+    res[i] = xNext;
+    xPrev = xNext;
+  }
+  res;
+}
+```
+
+```{r}
+plot.ts(suiteGenCongruence(3,7), main="a=3", xlab="x");
+```
+
+Avec a = 3, on observer un cycle de 6. En effet, on peut voir que la valeur 3, qui est la valeur avec x=1 revient à x=7.
+
+```{r}
+plot.ts(suiteGenCongruence(4,7), main="a=4", xlab="x");
+```
+
+Avec a = 4, on observer un cycle de 3.
+
+
+# Exercice 2 : Pérdiode d'un générateur à base de congruences
+```{r}
+suiteHullDobell = function(a, b, mod, fin=mod*2){
+  xPrev = 1;
+  xNext = 0;
+  res=c();
+  for(i in 1:fin){
+    xNext = ((xPrev * a) + b) %% mod;
+    res[i] = xNext;
+    xPrev = xNext;
+  }
+  res;
+}
+```
+
+## Question 1 :
+```{r}
+plot.ts(suiteHullDobell(4,2,9), main="a=4,b=2,mod=9", xlab="x");
+```
+
+Les trois conditions sont vérifiés et le cycle est bien de 10 (mod+1).
+
+```{r}
+plot.ts(suiteHullDobell(2,2,9), main="a=2,b=2,mod=9", xlab="x");
+```
+
+La condition 2 n'est pas vérifié.
+
+```{r}
+plot.ts(suiteHullDobell(3,3,9), main="a=3,b=3,mod=9", xlab="x");
+```
+
+Les conditions 1 et 2 ne sont pas vérifiés.
+
+```{r}
+plot.ts(suiteHullDobell(1,1,9), main="a=1,b=1,mod=9", xlab="x");
+```
+
+Les trois conditions sont vérifiés et le cycle est bien de 10 (mod+1).
+
+## Question 2 :
+
+### a)
+
+```{r}
+plot.ts(suiteHullDobell(11,1,71), main="a=11,b=1,mod=71", xlab="x");
+```
+
+Sur ce graphique, déterminer la longeur du cycle est difficile. Nous allons donc créer une fonction pour rechercher cette valeur.
+
+
+```{r}
+# Retourne la longueur du cycle. -1 si il n'est pas possible de le calculer
+rechercheCycle = function(vector){
+  lenVector = length(vector);
+  cycle = -1; # Retourne -1 si il n'est pas possible de calculer la longueur du cyle
+  if(lenVector > 1){
+    valeurCycle = vector[1]; # Récupère la première valeur du vecteur
+    cycle = -2; # retourne -2 si aucun cycle n'a été trouvé
+    for(i in 2:lenVector){
+      if(valeurCycle == vector[i]){
+        cycle = i - 1; # retourne l'index si on a retrouvé la première valeur
+        break;
+      }
+    }
+  }
+  cycle;
+}
+```
+
+
+```{r}
+rechercheCycle(suiteHullDobell(11,1,71))
+```
+Avec cette fonction, on trouve que le cycle est de longeur 70.
+
+
+### b)
+```{r}
+suiteBell1 = suiteHullDobell(11,1,71,100)
+hist(suiteBell1, breaks=100, main="Histogramme de suiteHullDobell(a=11, b=1, mod=71, fin=100)");
+```
+
+### c)
+```{r}
+plot(suiteBell1[2:100], suiteBell1[1:99], xlab="X_n+1", ylab="X_n", main="suiteHullDobell(a=11, b=1, mod=71, fin=100)");
+```
+
+```{r}
+longeur = 199018;
+suiteBell2 = suiteHullDobell(24298,99991,199017, longeur)
+plot(suiteBell2[2:longeur], suiteBell2[1:longeur-1], xlab="X_n+1", ylab="X_n", main="suiteHullDobell(a=24298, b=99991, mod=199017, fin=199018)");
+```
+
+Nous pouvons remarquer que l'aléatoire généré avec le premier générateur n'est pas réellement aléatoire. Une structure se dégage très clairement.
+
+Le second générateur semble apporter un aléatoire beaucoup plus convainquant, mais il est possible qu'une structure se dégage avec une analyse plus poussée.
+

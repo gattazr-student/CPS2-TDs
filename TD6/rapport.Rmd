@@ -1,0 +1,101 @@
+---
+title: 'TD6: Loi normale'
+author: "DUNAND Quentin, GATTAZ Rémi"
+date: "13 Novembre 2015"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: no
+---
+
+---------
+# Définition de la loi normale
+
+## Question 1 :
+<!--
+dnorm = fonction de densité
+pnorm = fonction de répartition
+qnorm = fonction quantile = inverse de pnorm
+rnrm = gausienne
+-->
+
+```{r}
+  wRNorm = rnorm(10000);
+  hist(wRNorm, breaks=100, main="Histogramme de la loi normale (rnorm)");
+```
+
+```{r}
+  wDNorm = dnorm(-5:5);
+  plot.ts(-5:5, wDNorm, main="Fonction de densité entre -5 et 5 (dnorm)", xlab="x", xy.labels=FALSE, xy.lines=TRUE);
+```
+
+
+```{r}
+  wPNorm = pnorm(-5:5);
+  plot.ts(-5:5, wPNorm, main="Fonction de répartition entre -5 et 5 (pnorm)", xlab="x", xy.labels=FALSE, xy.lines=TRUE);
+```
+
+```{r}
+  wQNorm = qnorm(seq(0.01, 0.99, 0.01));
+  plot.ts(wQNorm, main="Inverse de la fonction de répartition (qnorm)");
+```
+
+## Question 2 :
+
+pnorm étant l'intégrale de -INF à x, on peut l'utiliser pour calculer l'intrégrale entre x et y.
+```{r}
+  pnorm(1, mean = 0, sd = 1) - pnorm(-1, mean = 0, sd = 1);
+  pnorm(2, mean = 0, sd = 1) - pnorm(-2, mean = 0, sd = 1);
+  pnorm(3, mean = 0, sd = 1) - pnorm(-3, mean = 0, sd = 1);
+```
+
+# Propriétés importantes de la Loi Normale
+
+## Question 3 :
+```{r}
+  xR = rnorm(10000, mean = 0, sd = 1)
+  yR = rnorm(10000, mean = 2, sd = 2);
+  
+  wNorm2 = xR+yR;
+  hist(wNorm2, prob=T, breaks=100, main="Histogramme de la densité de xR + yR (Somme de deux lois normales)");
+  lines(density(wNorm2), col="red", lwd=2) 
+  
+  wNorm3 = 3*xR+2*yR;
+  hist(wNorm3, prob=T, breaks=100, main="Histogramme de la densité de 3*xR+2*yR");
+  lines(density(wNorm3), col="red", lwd=2) 
+```
+
+# Génération
+
+## Question 4 :
+```{r}
+  wX = c();
+  N = 10000;
+  for (wI in 1:N){
+    wX[wI] = sum(runif(12, min = 0, max = 1)) - 6;
+  }
+
+  hist(wX, breaks=100, main="Histogramme de la loi normale généré à l'aide de tirage uniformes");
+```
+
+## Question 5 :
+```{r}
+  wX1 = c();
+  wX2 = c();
+  N = 10000;
+  for (wI in 1:N){
+    wX1[wI] = sum(runif(12, min = -1, max = 1)) - 6;
+    wX2[wI] = sum(runif(12, min = -1, max = 1)) - 6;
+  }
+
+  hist(wX1*wX2, breaks=100, main="Histogramme de wX1*wX2");
+```
+
+## Question 6 :
+```{r}
+  wN1 = rnorm(10000, mean = 0, sd = 1)
+  wN2 = rnorm(10000, mean = 0, sd = 1);
+  
+  hist(wN1*wN2, breaks=100, main="Histogramme de wN1*wN2");
+```

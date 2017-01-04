@@ -1,0 +1,103 @@
+---
+title: 'TD4: Problème du collecteur de coupon'
+author: "DUNAND Quentin, GATTAZ Rémi"
+date: "23 Octobre 2015"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: no
+---
+
+---------
+# Exercice 1 : Panini tout seul
+
+## Question 1
+Puisque le tirage est uniforme et que chaque paquet contient ``k`` stickers, le nombre de paquet nécessaire, en moyenne, pour compléter la collection complète de 100 stickers est de 
+
+## Question 2 : Modélisation du problème
+
+```{r}
+panini_seul = function(nStickers, kParPaquet){
+  wPossede = rep(0, nStickers)
+  wNbTirages = 0;
+  
+  while(min(wPossede) < 1){
+    # Effectue un tirage de kParPaquet élements parmis nStickers
+    wTirage = sample.int(nStickers, kParPaquet);
+    wNbTirages = wNbTirages + 1;
+    
+    # Ajout du tirage à All
+    for(wElement in wTirage){
+      wPossede[wElement] = wPossede[wElement] + 1;
+    }
+  }
+  wNbTirages;
+}
+```
+
+## Question 3-4 :
+```{r}
+nbSimu = 5;
+n = 100;
+for(k in 1:5){
+  tirages = c();
+  i = 0;
+  while(i < nbSimu){
+    tirages[i] = panini_seul(n,k);
+    i = i  + 1;
+  }
+  hist(tirages, breaks=30, main=paste('k =', k));
+  print(summary(tirages));
+}
+```
+
+Avec 100 simulations à chaque fois, aucune tendance ne semble se dégager de façon évidente. On peut cependant remarquer une tendance en augmentant ce nombre. 
+
+## Question 5 :
+Le résultat dépent de k. Lorsque k augmente, le nombre de paquet à acheté diminue beaucoup. Il semblerait aussi que la moyenne se rapproche alors de la médiane.
+
+# Exercice 2 : Panini à plusieurs
+
+## Question 1 :
+Pour répondre à ce problème, nous devons adapter légèrement notre fonction panini seul pour retourner en plus du nombre de tirages, toutes les valeurs tirés.
+```{r}
+panini_seul_2 = function(nStickers, kParPaquet, possede=rep(0, nStickers)){
+  wNbTirages = 0;
+  while(min(possede) < 1){
+    # Effectue un tirage de kParPaquet élements parmis nStickers
+    wTirage = sample.int(nStickers, kParPaquet);
+    wNbTirages = wNbTirages + 1;
+    
+    # Ajout du tirage à All
+    for(wElement in wTirage){
+      possede[wElement] = possede[wElement] + 1;
+    }
+  }
+  c(wNbTirages, possede);
+}
+```
+
+```{r}
+panini_plusieurs = function(nStickers, kParPaquet, nAlbums){
+  wNbTirages =  c();
+  wPossede = rep(0, nStickers);
+  i = 0;
+  while(i < nAlbums + 1){
+    i = i + 1;
+    wRes = panini_seul_2(nStickers, kParPaquet, wPossede);
+    wNbTirages[i] = wRes[1];
+    wPossede = wRes[2:length(wRes)];
+    # Faire un -1 sur tous les éléments de possede
+    wPossede = wPossede - 1;
+  }
+  wNbTirages;
+}
+```
+
+## Question 2 :
+```{r}
+vect = panini_plusieurs(100, 5, 20);
+summary(vect)
+```
+

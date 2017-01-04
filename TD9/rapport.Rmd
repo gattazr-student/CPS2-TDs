@@ -1,0 +1,89 @@
+---
+title: 'TD9: Théorème centrale limite'
+author: "DUNAND Quentin, GATTAZ Rémi"
+date: "4 Décembre 2015"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: no
+---
+
+---------
+# Exercice 1
+## Lancer de dés
+```{r}
+de_N = function(N=6, tirages=1) {
+  wFaces = 1:N
+  return(sample(wFaces, tirages, replace=TRUE));
+}
+
+simulation = function(simulations=10000, N=6, tirages=24){
+  wRes = c();
+  for(i in 1:simulations){
+    wRes[i] = sum(de_N(tirages=tirages));
+  }
+  
+  return(wRes);
+}
+
+wNbSimu = 10000;
+wNbBreaks = 100;
+wSimu = simulation(simulations=wNbSimu)
+
+hist(wSimu, breaks=wNbBreaks, main="Histogramme de 100 000 simulations de lancer de 24 dés");
+
+hist(rnorm(wNbSimu, mean=84, sd=sqrt(70)), breaks=wNbBreaks, main='Histogramme de la loi normale de moyenne 84 et sd=sqrt(70)')
+```
+
+## World Trade Center
+
+```{r}
+mesure_h = function(moyenne, erreur, tirages=1){
+  return(runif(tirages, moyenne-erreur, moyenne+erreur))
+}
+
+simulation2 = function(simulations=1000, moyenne=1776, erreur=2, tirages=18){
+  wRes = c();
+  for(i in 1:simulations){
+    wRes[i] = sum(mesure_h(moyenne, erreur, tirages=tirages)) / tirages;
+  }
+  
+  return(wRes);
+}
+
+wNbSimu = 100000;
+wNbBreaks = 100;
+wSimu = simulation2(simulations=wNbSimu)
+
+hist(wSimu, breaks=wNbBreaks, main="Histogramme de 100 000 simulations de 18 mesures de hauteurs");
+
+hist(rnorm(wNbSimu, mean=1776, sd=sqrt(16/12*1/18)), breaks=wNbBreaks, main='Histogramme de la loi normale de moyenne 84 et sd=sqrt(16/12*1/18)')
+```
+
+## Vegas (baby)
+```{r}
+jeu = function(probaGain, tirages=1){
+  wProba = rep(probaGain, tirages)
+  return(runif(tirages, 0, 1) < wProba)
+}
+
+simulation3 = function(simulations=1000, probaGain=1/4, tirages=240){
+  wRes = c();
+  for(i in 1:simulations){
+    wRes[i] = 0;
+    wJeux = jeu(probaGain, tirages=tirages);
+    wRes[i] = sum(wJeux == TRUE)*2 - sum(wJeux == FALSE)
+  }
+  
+  return(wRes);
+}
+
+wNbSimu = 100000;
+wNbBreaks = 100;
+wSimu = simulation3(simulations=wNbSimu)
+
+hist(wSimu, breaks=wNbBreaks, main="Histogramme de 100 000 simulations de 240 parties");
+
+hist(rnorm(wNbSimu, mean=-60, sd=sqrt(54/64*240)), breaks=wNbBreaks, main='Histogramme de la loi normale de moyenne -60 et sd=sqrt(54/64*240)')
+```
